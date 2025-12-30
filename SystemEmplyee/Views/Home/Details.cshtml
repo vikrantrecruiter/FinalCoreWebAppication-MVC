@@ -1,0 +1,67 @@
+﻿@model SystemEmplyee.Models.EmployeeDbModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <div class="container mt-4">
+        <div class="card shadow-lg border-0">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-person-badge"></i> Employee Details
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+
+                    <!-- LEFT : PHOTO -->
+                    <div class="col-md-4 text-center">
+                        <img src="~/Images/@Model.Photo"
+                             class="img-thumbnail rounded-circle mb-3"
+                             style="width:180px;height:180px;object-fit:cover" />
+
+                        <h5 class="fw-bold">@Model.Name</h5>
+                        <span class="badge bg-success">@Model.Department</span>
+                    </div>
+
+                    <!-- RIGHT : DETAILS -->
+                    <div class="col-md-8">
+                        <table class="table table-borderless">
+                            <tbody>
+                                <tr>
+                                    <th>Email</th>
+                                    <td>@Model.Email</td>
+                                </tr>
+                                <tr>
+                                    <th>Phone</th>
+                                    <td>@Model.Phone</td>
+                                </tr>
+                                <tr>
+                                    <th>Country</th>
+                                    <td>@Model.Country</td>
+                                </tr>
+                                <tr>
+                                    <th>State</th>
+                                    <td>@Model.State</td>
+                                </tr>
+                                <tr>
+                                    <th>City</th>
+                                    <td>@Model.City</td>
+                                </tr>
+                                <tr>
+                                    <th>Date of Birth</th>
+                                    <td>@Model.Dob.ToString("dd MMM yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <th>Salary</th>
+                                    <td>₹ @Model.Salary.ToString("N0")</td>
+                                </tr>
+
+<div>
+    @Html.ActionLink("Edit", "Edit", new { /* id = Model.PrimaryKey */ }) |
+    <a asp-action="Index">Back to List</a>
+</div>

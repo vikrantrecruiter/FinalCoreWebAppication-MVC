@@ -1,0 +1,215 @@
+﻿@model SystemEmplyee.Models.EmployeeDbModel
+@using SystemEmplyee.Models
+
+@{
+    ViewData["Title"] = "Update";
+}
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Update" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <!-- Name -->
+            <div class="mb-3">
+                <label asp-for="Name" class="form-label fw-bold"></label>
+                <input asp-for="Name" class="form-control rounded-pill shadow-sm" placeholder="Enter full name" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label fw-bold"></label>
+                <input asp-for="Email" class="form-control rounded-pill shadow-sm" placeholder="Enter email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label fw-bold"></label>
+                <input asp-for="Phone" class="form-control rounded-pill shadow-sm" placeholder="Enter phone number" />
+                <span asp-validation-for="Phone" class="text-danger"></span>
+            </div>
+
+            <!-- Department -->
+            <div class="mb-3">
+                <label asp-for="Dept" class="form-label fw-bold"></label>
+                <select asp-for="Dept" asp-items="ViewBag.department" class="form-select rounded-pill shadow-sm">
+                    <option value="">Select Designation</option>
+                </select>
+                <span asp-validation-for="Dept" class="text-danger"></span>
+            </div> 
+
+            <!-- Location: Country, State, City -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Country</label>
+                    <select asp-for="CountId" asp-items="ViewBag.country" class="form-select rounded-pill shadow-sm" id="country" data-selected="@Model.CountId">
+                        <option value="">Select Country</option>
+                    </select>
+                    <span asp-validation-for="CountId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">State</label>
+                    <select asp-for="StatId" asp-items="Enumerable.Empty<SelectListItem>()" class="form-select rounded-pill shadow-sm" id="state" data-selected="@Model.StatId">
+                        <option value="">Select State</option>
+                    </select>
+                    <span asp-validation-for="StatId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">City</label>
+                    <select asp-for="CityId" asp-items="ViewBag.city" class="form-select rounded-pill shadow-sm" id="city" data-selected="@Model.CityId">
+                        <option value="">Select City</option>
+                    </select>
+                    <span asp-validation-for="CityId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <!-- Photo -->
+            <div class="mb-3">
+                <label class="form-label fw-bold">Photo</label>
+                <input type="file" asp-for="Photo" name="photofile" class="form-control rounded-pill shadow-sm" onchange="previewImage(this)" />
+                <span asp-validation-for="Photo" name="photoFile" class="text-danger"></span>
+            </div>
+
+            <!-- DOB -->
+            <div class="mb-3">
+                <label asp-for="Dob" class="form-label fw-bold"></label>
+                <input asp-for="Dob" class="form-control rounded-pill shadow-sm" type="date" min="1950-01-01" max="2005-12-31" />
+                <span asp-validation-for="Dob" class="text-danger"></span>
+            </div>
+
+            <!-- Salary -->
+            <div class="mb-4">
+                <label asp-for="Salary" class="form-label fw-bold"></label>
+                <input asp-for="Salary" class="form-control rounded-pill shadow-sm" placeholder="Enter salary" />
+                <span asp-validation-for="Salary" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4 text-center">
+                <label class="form-label fw-bold">Current Photo</label><br />
+                <img id="photoPreview" src="~/Images/@Model.Photo"
+                     class="img-thumbnail mb-2"
+                     style="width:150px;height:150px;object-fit:cover" />
+                <p class="text-muted">Upload new photo to replace</p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="d-grid">
+                <input type="submit" value="Create" class="btn btn-primary btn-lg rounded-pill shadow-sm" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+          $(document).ready(function () {
+
+        var selectedCountryId = $('#country').data('selected');
+        var selectedStateId = $('#state').data('selected');
+        var selectedCityId = $('#city').data('selected');
+
+        var antiForgeryToken = $('input[name="__RequestVerificationToken"]').val();
+
+        if (selectedCountryId) {
+            loadStates(selectedCountryId, selectedStateId);
+        }
+
+        $('#country').change(function () {
+            var countryId = $(this).val();
+            $('#state').empty().append('<option value="">Select State</option>');
+            $('#city').empty().append('<option value="">Select City</option>');
+            if (countryId) {
+                loadStates(countryId, null);
+            }
+        });
+
+        $('#state').change(function () {
+            var stateId = $(this).val();
+            $('#city').empty().append('<option value="">Select City</option>');
+            if (stateId) {
+                loadCities(stateId, null);
+            }
+        });
+
+        function loadStates(countryId, selectedStateId) {
+            $.ajax({
+                url: '@Url.Action("GetStateName", "Home")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: antiForgeryToken,
+                    countryId: countryId
+                },
+                success: function (states) {
+                    $('#state').empty().append('<option value="">Select State</option>');
+
+                    $.each(states, function (i, state) {
+                        $('#state').append(
+                            $('<option>', {
+                                value: state.stateId,
+                                text: state.stateName,
+                                selected: state.stateId == selectedStateId
+                            })
+                        );
+                    });
+
+                    // 🔥 IMPORTANT: load cities AFTER state is selected
+                    if (selectedStateId) {
+                        loadCities(selectedStateId, selectedCityId);
+                    }
+                }
+            });
+        }
+
+        function loadCities(stateId, selectedCityId) {
+            $.ajax({
+                url: '@Url.Action("GetCityName", "Home")',
+                type: 'POST',
+                data: {
+                    __RequestVerificationToken: antiForgeryToken,
+                    stateId: stateId
+                },
+                success: function (cities) {
+                    $('#city').empty().append('<option value="">Select City</option>');
+
+                    $.each(cities, function (i, city) {
+                        $('#city').append(
+                            $('<option>', {
+                                value: city.cityId,
+                                text: city.cityName,
+                                selected: city.cityId == selectedCityId
+                            })
+                        );
+                    });
+                }
+            });
+        }
+    });
+
+
+       function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+
+            reader.onload = function (e) {
+                document.getElementById("photoPreview").src = e.target.result;
+            };
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+</script>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

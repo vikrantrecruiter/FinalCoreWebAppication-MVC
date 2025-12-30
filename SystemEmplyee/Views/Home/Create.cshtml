@@ -1,0 +1,164 @@
+﻿@model SystemEmplyee.Models.EmployeeDbModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>EmployeeDbModel</h4>
+<hr />
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>Create Employee</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <!-- Name -->
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label fw-bold"></label>
+                            <input asp-for="Name" class="form-control rounded-pill shadow-sm" placeholder="Enter full name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label fw-bold"></label>
+                            <input asp-for="Email" class="form-control rounded-pill shadow-sm" placeholder="Enter email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-3">
+                            <label asp-for="Phone" class="form-label fw-bold"></label>
+                            <input asp-for="Phone" class="form-control rounded-pill shadow-sm" placeholder="Enter phone number" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="mb-3">
+                            <label asp-for="Dept" class="form-label fw-bold"></label>
+                            <select asp-for="Dept" asp-items="ViewBag.Designation" class="form-select rounded-pill shadow-sm">
+                                <option value="">Select Designation</option>
+                            </select>
+                            <span asp-validation-for="Dept" class="text-danger"></span>
+                        </div>
+
+                        <!-- Location: Country, State, City -->
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Country</label>
+                                <select asp-for="CountId" asp-items="ViewBag.Country" class="form-select rounded-pill shadow-sm" id="country">
+                                    <option value="">Select Country</option>
+                                </select>
+                                <span asp-validation-for="CountId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">State</label>
+                                <select asp-for="StatId" asp-items="Enumerable.Empty<SelectListItem>()" class="form-select rounded-pill shadow-sm" id="state">
+                                    <option value="">Select State</option>
+                                </select>
+                                <span asp-validation-for="StatId" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">City</label>
+                                <select asp-for="CityId" asp-items="Enumerable.Empty<SelectListItem>()" class="form-select rounded-pill shadow-sm" id="city">
+                                    <option value="">Select City</option>
+                                </select>
+                                <span asp-validation-for="CityId" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <!-- Photo -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Photo</label>
+                            <input type="file" asp-for="Photo" name="photofile" class="form-control rounded-pill shadow-sm" />
+                            <span asp-validation-for="Photo" name="photoFile" class="text-danger"></span>
+                        </div>
+
+                        <!-- DOB -->
+                        <div class="mb-3">
+                            <label asp-for="Dob" class="form-label fw-bold"></label>
+                            <input asp-for="Dob" class="form-control rounded-pill shadow-sm" type="date" min="1950-01-01" max="2005-12-31" />
+                            <span asp-validation-for="Dob" class="text-danger"></span>
+                        </div>
+
+                        <!-- Salary -->
+                        <div class="mb-4">
+                            <label asp-for="Salary" class="form-label fw-bold"></label>
+                            <input asp-for="Salary" class="form-control rounded-pill shadow-sm" placeholder="Enter salary" />
+                            <span asp-validation-for="Salary" class="text-danger"></span>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <input type="submit" value="Create" class="btn btn-primary btn-lg rounded-pill shadow-sm" />
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#country').change(function () {
+            var countryId = $(this).val();
+            $('#state').empty().append('<option value="">Select State</option>');
+            $('#city').empty().append('<option value="">Select City</option>');
+
+            if (countryId) {
+                $.ajax({
+                    url: '@Url.Action("GetStateName", "Home")',
+                    type: 'POST',
+                    data: { countryId: countryId },
+                    success: function (states) {
+                        console.log(states);
+                        $.each(states, function (i, state) {
+                            $('#state').append('<option value="' + state.stateId + '">' + state.stateName + '</option>');
+                        });
+                    },
+                    error: function () {
+                        alert('⚠️ Unable to fetch states. Please try again.');
+                    }
+                });
+            }
+        });
+
+        $('#state').change(function () {
+            var stateId = $(this).val();
+            $('#city').empty().append('<option value="">Select City</option>');
+
+            if (stateId) {
+                $.ajax({
+                    url: '@Url.Action("GetCityName", "Home")',
+                    type: 'POST',
+                    data: { stateId: stateId },
+                    success: function (cities) {
+                        $.each(cities, function (i, city) {
+                            $('#city').append('<option value="' + city.cityId + '">' + city.cityName + '</option>');
+                        });
+                    },
+                    error: function () {
+                        alert('⚠️ Unable to fetch cities. Please try again.');
+                    }
+                });
+            }
+        });
+    });
+
+</script>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
